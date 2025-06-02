@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Rawo–Leitre Road Video Map</title>
+  <title>Boram Junction–Dagua Road Video Map</title>
   <meta charset="utf-8" />
   <style>
     body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
@@ -21,22 +21,11 @@
     }
     #content {
       display: flex;
-      flex-direction: column;
       height: calc(100vh - 80px);
     }
-    #video {
-      height: 40%;
-      width: 100%;
-    }
-    #map {
-      height: 60%;
-      width: 100%;
-    }
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
+    #map { width: 60%; height: 100%; position: relative; }
+    #video { width: 40%; height: 100%; }
+    iframe { width: 100%; height: 100%; border: none; }
     #infoBox {
       position: fixed;
       bottom: 10px;
@@ -54,7 +43,7 @@
         flex-direction: column;
         height: auto;
       }
-      #video, #map {
+      #map, #video {
         width: 100%;
         height: 50vh;
       }
@@ -70,16 +59,16 @@
 </head>
 <body>
   <div id="header">
-    <h1>Rawo–Leitre Road Video Map</h1>
-    <p>This dashboard shows synchronized drone footage and the GPS-tracked route of the Rawo–Leitre access road, with cumulative distance visualized along the journey.</p>
+    <h1>Boram Junction–Dagua Road Video Map</h1>
+    <p>This dashboard synchronizes video footage with the GPS-tracked route for the Boram Junction–Dagua road upgrade, showing real-time progress and travel distance.</p>
   </div>
   <div id="content">
+    <div id="map"></div>
     <div id="video">
       <iframe id="ytplayer" type="text/html"
-        src="https://www.youtube.com/embed/38JummjZeAs?enablejsapi=1&rel=0"
+        src="https://www.youtube.com/embed/PsWyslsSZlU?enablejsapi=1&rel=0"
         frameborder="0" allowfullscreen></iframe>
     </div>
-    <div id="map"></div>
   </div>
   <div id="infoBox">
     <strong>Distance Travelled</strong><br>
@@ -87,15 +76,15 @@
   </div>
 
   <script>
-    let map = L.map('map').setView([-2.85, 141.55], 13);
+    let map = L.map('map').setView([-3.5, 143.65], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
     let routeData = [];
-    let marker, player, currentVideo = 1;
+    let marker, player;
 
-    fetch('synced_route_scaled_15_1km.geojson')
+    fetch('boram_dagua_synced_final.geojson')
       .then(res => res.json())
       .then(data => {
         routeData = data.features;
@@ -115,7 +104,7 @@
 
     function syncMarkerToVideo() {
       if (!player || typeof player.getCurrentTime !== 'function' || routeData.length === 0) return;
-      let time = Math.floor(player.getCurrentTime()) + (currentVideo === 2 ? 1697 : 0);
+      let time = Math.floor(player.getCurrentTime());
 
       let match = routeData.reduce((prev, curr) => {
         return Math.abs(curr.properties.timestamp - time) < Math.abs(prev.properties.timestamp - time) ? curr : prev;
@@ -129,10 +118,7 @@
     }
 
     function onPlayerStateChange(event) {
-      if (event.data === YT.PlayerState.ENDED && currentVideo === 1) {
-        currentVideo = 2;
-        player.loadVideoById("uSo2IoyOx10");
-      }
+      // No switching logic needed for single video
     }
   </script>
 </body>
