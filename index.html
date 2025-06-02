@@ -84,7 +84,7 @@
     let routeData = [];
     let marker, player;
 
-    fetch('boram_dagua_synced_final.geojson')
+    fetch('boram_dagua_synced.geojson')
       .then(res => res.json())
       .then(data => {
         routeData = data.features;
