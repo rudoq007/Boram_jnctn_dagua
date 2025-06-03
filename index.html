@@ -45,16 +45,10 @@
       box-shadow: 0 0 5px rgba(0,0,0,0.3);
       z-index: 1000;
     }
-
-    @media (max-width: 768px) {
-      #infoBox {
-        bottom: 70px;
-        left: 10px;
-      }
-    }
   </style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-providers@1.13.0/leaflet-providers.min.js"></script>
   <script src="https://www.youtube.com/iframe_api"></script>
 </head>
 <body>
@@ -76,19 +70,29 @@
   </div>
 
   <script>
-    let map = L.map('map').setView([-3.5, 143.65], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+    let map = L.map('map', {
+      dragging: false,
+      scrollWheelZoom: false,
+      doubleClickZoom: false,
+      touchZoom: false,
+      boxZoom: false,
+      keyboard: false,
+      zoomControl: false
+    });
+
+    L.tileLayer.provider('Esri.WorldImagery').addTo(map);  // Google-like hybrid satellite imagery
 
     let routeData = [];
     let marker, player;
 
-    fetch('boram_dagua_synced.geojson')
+    fetch('boram_dagua_synced_final.geojson')
       .then(res => res.json())
       .then(data => {
         routeData = data.features;
         const latlngs = routeData.map(f => [f.geometry.coordinates[1], f.geometry.coordinates[0]]);
+        const bounds = L.polyline(latlngs).getBounds();
+        map.fitBounds(bounds);
+        map.setMaxBounds(bounds); // lock map to bounds
         L.polyline(latlngs, { color: 'blue' }).addTo(map);
         marker = L.marker(latlngs[0]).addTo(map);
         setInterval(syncMarkerToVideo, 1000);
